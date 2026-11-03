@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrepMaster - Luyện Thi IELTS, HSG Tỉnh & Digital SAT</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons CDN -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Chart.js CDN (cho biểu đồ thống kê) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Thanh cuộn gọn cho giao diện Split-screen */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
+
+  <!-- ================= TOP NAVIGATION ================= -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-brand-500/20">
+          <i class="ph-bold ph-graduation-cap"></i>
+        </div>
+        <div>
+          <span class="text-xl font-black bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">PrepMaster</span>
+          <span class="text-xs block text-slate-400 font-medium tracking-wider">IELTS • HSG • SAT</span>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-1">
+        <button onclick="switchView('home')" class="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">Thư Viện Đề</button>
+        <button onclick="switchView('analytics')" class="px-3.5 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition flex items-center gap-1.5">
+          <i class="ph ph-chart-line-up text-lg text-brand-600"></i> Tiến Độ Cá Nhân
+        </button>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 border border-slate-200 py-1.5 px-3 rounded-full bg-slate-50">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-7 h-7 rounded-full bg-white" alt="Avatar">
+          <span class="text-xs font-semibold text-slate-700">Thí sinh</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="flex-1 flex flex-col">
+
+    <!-- 1. HOME VIEW (BỘ LỌC VÀ THƯ VIỆN ĐỀ) -->
+    <section id="view-home" class="py-8 px-4 max-w-7xl mx-auto w-full">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Hệ Thống Luyện Đề Thi Trực Tuyến</h1>
+        <p class="text-slate-500 mt-2 text-sm sm:text-base">Mô phỏng tiêu chuẩn phòng thi thật cho IELTS Academic, HSG Tiếng Anh C1/C2 và Digital SAT.</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kỳ thi</label>
+          <select id="filter-category" onchange="renderExamList()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="ALL">Tất cả kỳ thi</option>
+            <option value="IELTS">IELTS Academic (4 Kỹ Năng)</option>
+            <option value="HSG">HSG Tỉnh (C1/C2 Nâng Cao)</option>
+            <option value="SAT">Digital SAT (RW & Math)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Độ khó</label>
+          <select id="filter-level" onchange="renderExamList()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium">
+            <option value="ALL">Tất cả độ khó</option>
+            <option value="Medium">Tiêu chuẩn / Vừa phải</option>
+            <option value="Hard">Nâng cao / Chuyên sâu</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Năm thi</label>
+          <select id="filter-year" onchange="renderExamList()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium">
+            <option value="ALL">Tất cả các năm</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button onclick="resetFilters()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
+            <i class="ph ph-arrow-counter-clockwise"></i> Đặt lại bộ lọc
+          </button>
+        </div>
+      </div>
+
+      <!-- Exam Cards Grid -->
+      <div id="exam-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- 2. EXAM VIEW (GIAO DIỆN LÀM BÀI CHIA ĐÔI MÀN HÌNH) -->
+    <section id="view-exam" class="hidden flex-1 flex flex-col h-[calc(100vh-64px)] bg-slate-100 overflow-hidden">
+      <!-- Control Bar -->
+      <div class="bg-white border-b border-slate-200 px-6 py-2.5 flex items-center justify-between shrink-0 shadow-sm">
+        <div class="flex items-center space-x-3">
+          <span id="exam-badge" class="px-2.5 py-1 text-xs font-bold uppercase rounded-md tracking-wider bg-brand-50 text-brand-600 border border-brand-200">IELTS</span>
+          <h2 id="exam-title-header" class="text-sm font-bold text-slate-800 truncate max-w-xs md:max-w-md">Cambridge 18 - Reading Test 1</h2>
+        </div>
+
+        <div class="flex items-center space-x-4 md:space-x-6">
+          <!-- Countdown Clock -->
+          <div class="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-lg text-slate-700 font-mono font-bold text-sm">
+            <i class="ph ph-clock text-base text-brand-600"></i>
+            <span id="timer-display">60:00</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button onclick="confirmSubmitExam()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-md shadow-emerald-600/20 transition flex items-center gap-1.5">
+            <i class="ph-bold ph-check-circle"></i> Nộp Bài
+          </button>
+        </div>
+      </div>
+
+      <!-- Split-Screen Workspace -->
+      <div class="flex-1 flex flex-col md:flex-row overflow-hidden p-4 gap-4">
+        
+        <!-- Cột trái: Passage / Audio Player -->
+        <div class="w-full md:w-1/2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+          <div class="p-3.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="ph ph-article"></i> Đề Bài / Bài Đọc / File Nghe
+            </span>
+            <div id="listening-audio-player-container" class="hidden">
+              <audio id="exam-audio" controls class="h-8 text-xs">
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                Trình duyệt không hỗ trợ Audio.
+              </audio>
+            </div>
+          </div>
+          <div id="exam-passage-content" class="p-6 overflow-y-auto flex-1 prose prose-slate text-sm leading-relaxed max-w-none">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Cột phải: Câu hỏi & Bảng câu hỏi -->
+        <div class="w-full md:w-1/2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+          <!-- Question Palette -->
+          <div class="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between overflow-x-auto">
+            <div class="text-xs font-bold text-slate-500 mr-2 shrink-0">Danh sách câu:</div>
+            <div id="question-palette" class="flex items-center space-x-1.5">
+              <!-- Nút câu hỏi -->
+            </div>
+            <button id="flag-btn" onclick="toggleFlagCurrentQuestion()" class="ml-3 px-2.5 py-1 text-xs font-medium border border-slate-200 rounded-md hover:bg-slate-100 flex items-center gap-1 text-slate-600 shrink-0">
+              <i class="ph ph-flag"></i> Đánh dấu (Flag)
+            </button>
+          </div>
+
+          <!-- Question Content Box -->
+          <div id="question-container" class="p-6 overflow-y-auto flex-1 flex flex-col justify-between">
+            <!-- Question content injected dynamically -->
+          </div>
+
+          <!-- Bottom Navigation -->
+          <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+            <button id="prev-question-btn" onclick="navigateQuestion(-1)" class="px-4 py-2 text-xs font-bold border border-slate-200 rounded-lg hover:bg-white text-slate-700 transition">
+              &larr; Câu trước
+            </button>
+            <span id="current-question-indicator" class="text-xs font-semibold text-slate-500">Câu 1 / 4</span>
+            <button id="next-question-btn" onclick="navigateQuestion(1)" class="px-4 py-2 text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition">
+              Câu kế tiếp &rarr;
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. RESULT VIEW (BẢNG KẾT QUẢ & LỜI GIẢI CHI TIẾT) -->
+    <section id="view-result" class="hidden py-8 px-4 max-w-4xl mx-auto w-full">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+        <div class="text-center pb-6 border-b border-slate-100">
+          <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-xs uppercase tracking-wider rounded-full mb-2">Đã Hoàn Thành</span>
+          <h2 id="result-exam-title" class="text-2xl font-black text-slate-800">Kết Quả Bài Thi</h2>
+          <p class="text-slate-500 text-sm mt-1">Hệ thống đã tự động chấm điểm và tổng hợp lời giải thích chi tiết.</p>
+        </div>
+
+        <!-- Thống kê kết quả -->
+        <div class="grid grid-cols-3 gap-4 my-6">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+            <div class="text-xs font-bold text-slate-400 uppercase">Điểm quy đổi</div>
+            <div id="result-band" class="text-2xl sm:text-3xl font-black text-brand-600 mt-1">Band 7.5</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+            <div class="text-xs font-bold text-slate-400 uppercase">Số câu đúng</div>
+            <div id="result-correct" class="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">3/4</div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+            <div class="text-xs font-bold text-slate-400 uppercase">Thời gian làm</div>
+            <div id="result-time" class="text-2xl sm:text-3xl font-black text-indigo-600 mt-1">12:35</div>
+          </div>
+        </div>
+
+        <!-- Danh sách giải thích chi tiết -->
+        <div class="mt-8">
+          <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <i class="ph-bold ph-list-magnifying-glass text-brand-600"></i> Lời Giải Chi Tiết Từng Câu
+          </h3>
+          <div id="result-details-container" class="space-y-4">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between">
+          <button onclick="switchView('home')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold">
+            Trở về Thư viện
+          </button>
+          <button onclick="switchView('analytics')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-bold">
+            Xem Tiến Độ Cá Nhân &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ANALYTICS VIEW (THEO DÕI TIẾN ĐỘ & DẠNG BÀI CẦN CẢI THIỆN) -->
+    <section id="view-analytics" class="hidden py-8 px-4 max-w-7xl mx-auto w-full">
+      <div class="mb-6">
+        <h2 class="text-2xl font-black text-slate-800">Thống Kê Tiến Độ Luyện Thi</h2>
+        <p class="text-slate-500 text-sm">Lịch sử điểm số và thống kê kỹ năng cần cải thiện dựa trên kết quả luyện đề.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-base font-bold text-slate-800 mb-4">Lịch Sử Điểm Số Các Lần Thi (IELTS / SAT)</h3>
+          <div class="h-64">
+            <canvas id="progressChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-base font-bold text-slate-800 mb-4">Độ Thành Thạo Theo Kỹ Năng / Dạng Bài</h3>
+          <div class="h-64 flex justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+        <h3 class="text-amber-800 font-bold flex items-center gap-2">
+          <i class="ph-bold ph-lightbulb"></i> Khuyến Nghị Cải Thiện Dựa Trên Dữ Liệu
+        </h3>
